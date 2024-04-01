@@ -9,14 +9,19 @@
 #   agent produces illegal moves more than # times total, they will be marked as lost.
 
 import numpy as np
-import helper
 from inspect import getmembers, isfunction
+
 import agents
+import helper
+# TODO: parse the heuristics
+import heuristics
 
 # Game host main loop
 def main():
     # define size of board
     c = 7; r = 6
+    # w = connect #; d = max_depth
+    w = 4; max_depth = 3
     # Parse all agents into a dict.
     agent_list = getmembers(agents, isfunction)
     agent_names = [a[0] for a in agent_list]
@@ -51,18 +56,22 @@ def main():
     
     board = np.zeros([c, r], dtype=int)
     helper.print_board(board)
+    # next serves as the index for players[] 
+    # next == 0 is player 1; next == 1 is player 2
     next = 0
     while (True):
-        move = agent_funcs[players[next]](board, next+1)
+        #TODO: parse the heuristics
+        move = agent_funcs[players[next]](board, next+1, None, max_depth)
         board = helper.make_move(board, next+1, move)
         print(f'Agent {next+1}: {agent_names[players[next]]} plays: {move}')
         helper.print_board(board)
 
-        winner = helper.get_winner(board)
+        winner = helper.get_winner(board, w)
         if winner != 0:
             print(f'Winner is agent {winner}: {agent_names[players[winner-1]]}')
             
             break
+            # Initiate a new game when one ends. 
             # board = np.zeros([c, r], dtype=int)
             # helper.print_board(board)
             # next = 0

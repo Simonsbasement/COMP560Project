@@ -4,8 +4,13 @@ import numpy as np
 import colorama
 from colorama import Fore, Style
 
-# return which columns are accepting legal moves in boolean array
-# t is the index of the top avalible row for the avalible columns
+# Provide check for legal moves and top avalible row. 
+# Input: int[][] b = board
+# Return: [l, t]
+#         bool[] l = boolean array indicating if the corresponding
+#                    column is accepting legal move. 
+#         int[] t  = int array indicating the top avalible row for
+#                    each column. -1 if that column is full (illegal). 
 def get_avalible_column(b):
     [n, m] = np.shape(np.array(b))
     l = []
@@ -21,6 +26,7 @@ def get_avalible_column(b):
     return np.array(l, dtype=bool), np.array(t, dtype=int)
 
 # Print the board
+# Input: int[][] b = board
 def print_board(b):
     [n, m] = np.shape(np.array(b))
     for r in range(m-1, -1, -1):
@@ -36,6 +42,10 @@ def print_board(b):
     return
 
 # Play a move, return the new board; raise ValueError if trying to make an illegal move
+# Input: int[][] b = board
+#        int n = player to make the move
+#        int c = which column to move
+# Return int[][] b = new board
 def make_move(b, n, c):
     l, t = get_avalible_column(b)
     play = np.array(range(0, len(l)))[l]
@@ -48,8 +58,10 @@ def make_move(b, n, c):
 # return 0 for no winner, 1/2 for respective winner
 # evaled from 1) bot to top, then 2) left to right
 # if there are more than 1 winner on board(idk how), return the 1st discovered winner
-# TODO
-def get_winner(b, w=4):
+# Input: int[][] b = borad
+#        int w = connect #
+# Return: int winner = 1 or 2 if that player is winning, or 0 if noone is winning
+def get_winner(b, w):
     [n, m] = np.shape(np.array(b))
     for c in range(0, n):
         for r in range(0, m):
