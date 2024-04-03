@@ -47,13 +47,26 @@ def print_board(b):
 #        int c = which column to move
 # Return int[][] b = new board
 def make_move(b, n, c):
+    b = np.copy(b)
     l, t = get_avalible_column(b)
     play = np.array(range(0, len(l)))[l]
     if c not in play:
-        raise ValueError(f'Move {c} is an illegal move.')
+        raise ValueError(f'Move {c} is an illegal move out of {play}.')
     else:
-        b[c][t[c]] = n
+        b[c, t[c]] = n
         return b
+
+# Backtrack move j and k
+# Input: int[][] b = board
+#        int j = one of the columns to backtrack
+#        int k = the other column to backtrack
+# Return int[][] b = new board
+def backtrack(b, j, k):
+    _, t = get_avalible_column(b)
+    b[j][t[j]-1] = 0
+    _, t = get_avalible_column(b)
+    b[k][t[k]-1] = 0
+    return b
 
 # return 0 for no winner, 1/2 for respective winner
 # evaled from 1) bot to top, then 2) left to right
@@ -99,5 +112,3 @@ def get_winner(b, w):
                     return b[c][r]
     # if no winner, return 0
     return 0
-        
-
