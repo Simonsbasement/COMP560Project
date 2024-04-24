@@ -79,3 +79,85 @@ def h_sliding_windows(b, n, w=4):
                 score += evaluate_window(window, next)
             
     return score
+
+
+# def h_threat_detection(b, n, w):
+#     # Scan the board to identify potential winning moves for both players
+#     opponent = 1 if n == 2 else 2  # Identify the opponent's player ID
+#     opponent_threats = []
+#     ai_opportunities = []
+
+#     for col in range(len(b)):
+#         for row in range(len(b[col])):
+#             if b[col][row] == 0:
+#                 # Check if placing a piece at this position would create a winning move for the opponent
+#                 b[col][row] = opponent
+#                 opponent_wins = helper.get_winner(b, w)
+#                 b[col][row] = 0  # Reset the board to its original state
+#                 if opponent_wins == opponent:
+#                     opponent_threats.append((col, row))
+#                 # Check if placing a piece at this position would create a winning move for the AI
+#                 b[col][row] = n
+#                 ai_wins = helper.get_winner(b, w)
+#                 b[col][row] = 0  # Reset the board to its original state
+#                 if ai_wins == n:
+#                     ai_opportunities.append((col, row))
+
+#     # Evaluate the severity of each potential winning move and assign scores
+#     scores = {}
+#     for threat in opponent_threats:
+#         col, row = threat
+#         # Assign a score based on the proximity of the threat to completion
+#         scores[(col, row)] = 1000  # High score to prioritize blocking opponent's win
+
+#     for opportunity in ai_opportunities:
+#         col, row = opportunity
+#         # Assign a score based on the potential for the AI to win
+#         scores[(col, row)] = 500  # Moderate score for creating AI's own winning opportunity
+
+#     # Choose the move with the highest score as the next move for the AI
+#     best_move = max(scores, key=scores.get)
+#     return scores[best_move] if best_move in scores else 0  # Return the score of the selected move
+
+
+def h_threat_detection(b, n, w):
+    # Scan the board to identify potential winning moves for both players
+    opponent = 1 if n == 2 else 2  # Identify the opponent's player ID
+    opponent_threats = []
+    ai_opportunities = []
+
+    for col in range(len(b)):
+        for row in range(len(b[col])):
+            if b[col][row] == 0:
+                # Check if placing a piece at this position would create a winning move for the opponent
+                b[col][row] = opponent
+                opponent_wins = helper.get_winner(b, w)
+                b[col][row] = 0  # Reset the board to its original state
+                if opponent_wins == opponent:
+                    opponent_threats.append((col, row))
+                # Check if placing a piece at this position would create a winning move for the AI
+                b[col][row] = n
+                ai_wins = helper.get_winner(b, w)
+                b[col][row] = 0  # Reset the board to its original state
+                if ai_wins == n:
+                    ai_opportunities.append((col, row))
+
+    # Evaluate the severity of each potential winning move and assign scores
+    scores = {}
+    for threat in opponent_threats:
+        col, row = threat
+        # Assign a score based on the proximity of the threat to completion
+        scores[(col, row)] = 1000  # High score to prioritize blocking opponent's win
+
+    for opportunity in ai_opportunities:
+        col, row = opportunity
+        # Assign a score based on the potential for the AI to win
+        scores[(col, row)] = 500  # Moderate score for creating AI's own winning opportunity
+
+    # Check if there are potential winning moves detected
+    if not scores:
+        return 0  # Return default score of 0 if no potential moves detected
+
+    # Choose the move with the highest score as the next move for the AI
+    best_move = max(scores, key=scores.get)
+    return scores[best_move]  # Return the score of the selected move
