@@ -69,7 +69,7 @@ def main():
     next = 1
     while (True):
         #TODO: parse the heuristics
-        move = agent_funcs[players[next-1]](board, next, w, heuristics.h_threat_detection, max_depth)  ###PLAY HERE
+        move = agent_funcs[players[next-1]](board, next, w, heuristics.h_center_control, max_depth)  ###PLAY HERE
         
         # Backtrack from user
         # syntex: b j k
