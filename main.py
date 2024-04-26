@@ -13,17 +13,16 @@ from inspect import getmembers, isfunction
 
 import agents
 import helper
-# TODO: parse the heuristics
 import heuristics
 
 # Game host main loop
 def main():
-    # define size of board
+    # define size of board; column by row
     c = 7; r = 6
-    # w = connect #; d = max_depth
+    # w = win by connect #; max_depth = max_depth for agents
     w = 4; max_depth = 5
     # initiate a new game using the same agents when one ends
-    forever = True
+    forever = False
     if forever:
         wins = [0, 0]
     # Parse all agents into a dict.
@@ -35,8 +34,9 @@ def main():
     heuristics_names = [a[0] for a in heuristics_list]
     heuristics_funcs = [a[1] for a in heuristics_list]
 
-    print("Connect-4")
+    print("Welcome to Connect-4!")
     players = []
+    their_heuristics = []
     while (True):
         i = input(f'Please select agent 1 (who goes first): {agent_names}\n')
         if i == '':
@@ -50,6 +50,18 @@ def main():
             players.append(i)
             break
     while (True):
+        i = input(f'Please select heuristic for agent 1 {agent_names[players[0]]}: {heuristics_names}\n')
+        if i == '':
+            continue
+        i = int(i)
+        if (i < 0 or i >= len(heuristics_names)):
+            print(f'Invalid heuristic id {i}, try again')
+            continue
+        else:
+            print(f'Agent 1 is now using {heuristics_names[i]}')
+            their_heuristics.append(i)
+            break
+    while (True):
         i = input(f'Please select agent 2 (who goes second): {agent_names}\n')
         if i == '':
             continue
@@ -61,15 +73,25 @@ def main():
             print(f'Agent 2 is {agent_names[i]}')
             players.append(i)
             break
-    
+    while (True):
+        i = input(f'Please select heuristic for agent 2 {agent_names[players[1]]}: {heuristics_names}\n')
+        if i == '':
+            continue
+        i = int(i)
+        if (i < 0 or i >= len(heuristics_names)):
+            print(f'Invalid heuristic id {i}, try again')
+            continue
+        else:
+            print(f'Agent 2 is now using {heuristics_names[i]}')
+            their_heuristics.append(i)
+            break
     board = np.zeros([c, r], dtype=int)
     helper.print_board(board)
     # which agent is playing
     # mismatch the index in players[next-1] 
     next = 1
     while (True):
-        #TODO: parse the heuristics
-        move = agent_funcs[players[next-1]](board, next, w, heuristics.h_center_control, max_depth)  ###PLAY HERE
+        move = agent_funcs[players[next-1]](board, next, w, heuristics_funcs[their_heuristics[next-1]], max_depth)  ###PLAY HERE
         
         # Backtrack from user
         # syntex: b j k
