@@ -8,6 +8,7 @@
 #   Try to make legal moves; if not, the host will ask again; if the same
 #   agent produces illegal moves more than # times total, they will be marked as lost.
 
+import time
 import numpy as np
 from inspect import getmembers, isfunction
 
@@ -87,6 +88,9 @@ def main():
             break
     board = np.zeros([c, r], dtype=int)
     helper.print_board(board)
+    #Start Game timer 
+    start_time = time.time()
+
     # which agent is playing
     # mismatch the index in players[next-1] 
     next = 1
@@ -110,8 +114,14 @@ def main():
         winner = helper.get_winner(board, w)
         if winner != 0:
             print(f'Winner is agent {winner}: {agent_names[players[winner-1]]}')
+            
+            #Grab game time
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            elapsed_time_str = "{:.4f}".format(elapsed_time)
+
             #Record the winner into excel sheet
-            helper.record_to_excel(agent_names[players[0]], agent_names[players[1]], winner, agent_names[players[0]], "0.00", heuristics_names[0] + "|" +heuristics_names[1], board) 
+            helper.record_to_excel(agent_names[players[0]], agent_names[players[1]], winner, agent_names[players[0]], elapsed_time_str, heuristics_names[0] + "|" +heuristics_names[1], board) 
             if not forever:
                 break
             else:
