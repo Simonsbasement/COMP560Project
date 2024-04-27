@@ -1,8 +1,10 @@
 # Helper functions
 
+import os
 import numpy as np
 import colorama
 from colorama import Fore, Style
+from openpyxl import Workbook, load_workbook
 
 # Provide check for legal moves and top avalible row. 
 # Input: int[][] b = board
@@ -112,3 +114,50 @@ def get_winner(b, w):
                     return b[c][r]
     # if no winner, return 0
     return 0
+
+
+
+def record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic, final_board):
+    file_name = "game_data.xlsx"
+
+    # Convert final_board to a string
+    final_board_str = '\n'.join([' '.join(map(str, row)) for row in final_board])
+    
+    # Check if the file exists
+    if os.path.exists(file_name):
+        wb = load_workbook(file_name)
+        ws = wb.active
+    else:
+        # Create a new workbook if the file doesn't exist
+        wb = Workbook()
+        ws = wb.active
+        
+        # Define column headers for the new file
+        headers = ["Agent 1", "Agent 2", "Winner", "First Player", "Match Time", "Heuristic", "Final Board"]
+        for col, header in enumerate(headers, start=1):
+            ws.cell(row=1, column=col, value=header)
+
+    # Append data to the next row
+    row_data = [agent1, agent2, winner, first_player, match_time, heuristic, final_board_str]
+    ws.append(row_data)
+    
+    # Save the workbook
+    wb.save(file_name)
+    
+    print(f"Data appended to {file_name}")
+
+# # Example usage
+# agent1 = "Agent 1"
+# agent2 = "Agent 2"
+# winner = "Agent 1"
+# first_player = "Agent 1"
+# match_time = "00:05:23"  # Example match time
+# heuristic = "Heuristic 1"  # Example heuristic
+# final_board = [[1, 0, 2, 0, 0, 0],
+#                [2, 1, 1, 0, 0, 0],
+#                [1, 2, 2, 0, 0, 0],
+#                [2, 1, 2, 0, 0, 0],
+#                [1, 2, 1, 0, 0, 0],
+#                [2, 1, 1, 0, 0, 0]]  # Example final board state
+
+# record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic, final_board)

@@ -110,7 +110,8 @@ def main():
         winner = helper.get_winner(board, w)
         if winner != 0:
             print(f'Winner is agent {winner}: {agent_names[players[winner-1]]}')
-            
+            #Record the winner into excel sheet
+            helper.record_to_excel(agent_names[players[0]], agent_names[players[1]], winner, agent_names[players[0]], "0.00", heuristics_names[0] + "|" +heuristics_names[1], board) 
             if not forever:
                 break
             else:
@@ -121,6 +122,8 @@ def main():
                 helper.print_board(board)
                 next = 1
                 continue
+
+           
         
         # Flip between agent 1 and 2
         next = int(next == 1) + 1
