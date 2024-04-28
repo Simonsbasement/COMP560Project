@@ -117,7 +117,7 @@ def get_winner(b, w):
 
 
 
-def record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic, final_board):
+def record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic, final_board, depth):
     file_name = "game_data.xlsx"
 
     # Convert final_board to a string
@@ -133,12 +133,12 @@ def record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic,
         ws = wb.active
         
         # Define column headers for the new file
-        headers = ["Agent 1", "Agent 2", "Winner", "First Player", "Match Time", "Heuristic", "Final Board"]
+        headers = ["Agent 1", "Agent 2", "Winner", "First Player", "Match Time", "Heuristic", "Final Board", "Depth"]
         for col, header in enumerate(headers, start=1):
             ws.cell(row=1, column=col, value=header)
 
     # Append data to the next row
-    row_data = [agent1, agent2, winner, first_player, match_time, heuristic, final_board_str]
+    row_data = [agent1, agent2, winner, first_player, match_time, heuristic, final_board_str, depth]
     ws.append(row_data)
     
     # Save the workbook

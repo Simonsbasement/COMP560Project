@@ -139,3 +139,35 @@ def h_center_control(b, n, w):
 
     return total_score
 
+# Heuristic that prioritizes blocking opponent's potential forks.
+def h_block_fork(b, n, w):
+    opponent = 1 if n == 2 else 2  # Identify the opponent's player ID
+    
+    # Check for potential fork positions for the opponent
+    opponent_fork_positions = []
+    for col in range(len(b)):
+        for row in range(len(b[col])):
+            if b[col][row] == 0:
+                # Simulate placing a piece at this position for the opponent
+                b[col][row] = opponent
+                # Check if this move creates a potential fork for the opponent
+                if len(helper.get_avalible_column(b)[0]) >= 2:
+                    opponent_fork_positions.append((col, row))
+                # Reset the board to its original state
+                b[col][row] = 0
+
+    # Assign scores to columns based on their ability to block opponent's forks
+    column_scores = [0] * len(b)
+    for fork_pos in opponent_fork_positions:
+        col, _ = fork_pos
+        column_scores[col] += 1  # Increment the score for the column
+
+    # Calculate the total score for available moves based on column scores
+    total_score = 0
+    available_columns, _ = helper.get_avalible_column(b)
+    for col, is_available in enumerate(available_columns):
+        if is_available:
+            total_score += column_scores[col]
+
+    return total_score
+

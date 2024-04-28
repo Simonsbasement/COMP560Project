@@ -121,7 +121,7 @@ def main():
             elapsed_time_str = "{:.4f}".format(elapsed_time)
 
             #Record the winner into excel sheet
-            helper.record_to_excel(agent_names[players[0]], agent_names[players[1]], winner, agent_names[players[0]], elapsed_time_str, heuristics_names[0] + "|" +heuristics_names[1], board) 
+            helper.record_to_excel(agent_names[players[0]], agent_names[players[1]], winner, agent_names[players[0]], elapsed_time_str, heuristics_names[0] + "|" +heuristics_names[1], board, max_depth) 
             if not forever:
                 break
             else:
