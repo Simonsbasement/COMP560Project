@@ -171,3 +171,92 @@ def h_block_fork(b, n, w):
 
     return total_score
 
+# Heuristic that prioritizes moves that lead to a win rather than blocking
+def h_offense(b, n, w):
+    height = len(b)
+    width = len(b[0])
+    score = 0
+
+    def count_seq(line, player, seq_len):
+        count = 0
+        potential_seq = 0
+        for i in range(len(line)):
+            if line[i] == player:
+                potential_seq += 1
+            else:
+                if potential_seq == seq_len:
+                    count += 1
+                potential_seq = 0
+        if potential_seq == seq_len:
+            count += 1
+        return count
+    
+    # Horizontal
+    for r in range(height):
+        for c in range (width - w + 1):
+            horizontal = b[r][c:c + w]
+            if 0 in horizontal:
+                score += count_seq(horizontal, n, w-1) * 10
+                score += count_seq(horizontal, n, w-1) * 5
+    
+    # Vertical lines (checking only those that can be completed from below)
+    for c in range(width):
+        for r in range(height - w + 1):
+            vertical = [b[r + i][c] for i in range(w)]
+            if 0 in vertical:
+                score += count_seq(vertical, n, w - 1) * 10
+                score += count_seq(vertical, n, w - 2) * 5
+
+    # Diagonal lines (\ and / directions)
+    for r in range(height - w + 1):
+        for c in range(width - w + 1):
+            diag1 = [b[r + i][c + i] for i in range(w)]
+            diag2 = [b[r + w - 1 - i][c + i] for i in range(w)]
+            if 0 in diag1:
+                score += count_seq(diag1, n, w - 1) * 10
+                score += count_seq(diag1, n, w - 2) * 5
+            if 0 in diag2:
+                score += count_seq(diag2, n, w - 1) * 10
+                score += count_seq(diag2, n, w - 2) * 5
+    return score
+
+# Heuristic that prioritizes moves that block the opponent
+def h_defense(b, n, w):
+    opponent = 2 if n == 1 else 1
+    height = len(b)
+    width = len(b[0])
+    score = 0
+
+    # Helper function to count threats within a line
+    def count_threats(line, opponent, seq_length):
+        count = 0
+        for i in range(len(line) - seq_length + 1):
+            segment = line[i:i+seq_length]
+            if segment.count(opponent) == seq_length - 1 and segment.count(0) == 1:
+                count += 1
+        return count
+
+    # Check all possible lines on the board
+    # Horizontal lines
+    for r in range(height):
+        horizontal = [b[r][c] for c in range(width)]
+        score += count_threats(horizontal, opponent, w) * -10
+
+    # Vertical lines
+    for c in range(width):
+        vertical = [b[r][c] for r in range(height)]
+        score += count_threats(vertical, opponent, w) * -10
+
+    # Diagonal lines (\ direction)
+    for r in range(height - w + 1):
+        for c in range(width - w + 1):
+            diag1 = [b[r+i][c+i] for i in range(w)]
+            score += count_threats(diag1, opponent, w) * -10
+
+    # Diagonal lines (/ direction)
+    for r in range(w - 1, height):
+        for c in range(width - w + 1):
+            diag2 = [b[r-i][c+i] for i in range(w)]
+            score += count_threats(diag2, opponent, w) * -10
+
+    return score
