@@ -186,8 +186,12 @@ def main():
                         elapsed_time = (time.time() - start_time) / float(games_per_pair)
                         elapsed_time_str = "{:.4f}".format(elapsed_time)
                         # Record to excel
-                        print(f'Average time: {elapsed_time_str}; {agent_names[players[0]]}|{heuristics_names[their_heuristics[0]]} vs {agent_names[players[1]]}|{heuristics_names[their_heuristics[1]]}: {float(wins[0])*100.0/float(wins[0]+wins[1])}%')
-                        helper.record_to_excel(agent_names[players[0]], agent_names[players[1]], float(wins[0])/float(wins[0]+wins[1]), elapsed_time_str, heuristics_names[their_heuristics[0]], heuristics_names[their_heuristics[1]], None, max_depth, tournament=True)
+                        if wins[0]+wins[1] <= 1e-6:
+                            winrate = 0.0
+                        else:
+                            winrate = 100.0*float(wins[0])/float(wins[0]+wins[1])
+                        print(f'Average time: {elapsed_time_str}; {agent_names[players[0]]}|{heuristics_names[their_heuristics[0]]} vs {agent_names[players[1]]}|{heuristics_names[their_heuristics[1]]}: {winrate}%')
+                        helper.record_to_excel(agent_names[players[0]], agent_names[players[1]], winrate, elapsed_time_str, heuristics_names[their_heuristics[0]], heuristics_names[their_heuristics[1]], None, max_depth, tournament=True)
                         # Reset statistics
                         wins = [0, 0]
                         start_time = time.time()
