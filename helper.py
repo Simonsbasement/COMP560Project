@@ -115,8 +115,20 @@ def get_winner(b, w):
     # if no winner, return 0
     return 0
 
-
-
+# Output the result of a game to an excel file. 
+# Example output:
+# agent1 = "Agent 1"
+# agent2 = "Agent 2"
+# winner = "Agent 1"
+# first_player = "Agent 1"
+# match_time = "00:05:23"  # Example match time
+# heuristic = "Heuristic 1"  # Example heuristic
+# final_board = [[1, 0, 2, 0, 0, 0],
+#                [2, 1, 1, 0, 0, 0],
+#                [1, 2, 2, 0, 0, 0],
+#                [2, 1, 2, 0, 0, 0],
+#                [1, 2, 1, 0, 0, 0],
+#                [2, 1, 1, 0, 0, 0]]  # Example final board state
 def record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic, final_board, depth):
     file_name = "game_data.xlsx"
 
@@ -145,19 +157,3 @@ def record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic,
     wb.save(file_name)
     
     print(f"Data appended to {file_name}")
-
-# # Example usage
-# agent1 = "Agent 1"
-# agent2 = "Agent 2"
-# winner = "Agent 1"
-# first_player = "Agent 1"
-# match_time = "00:05:23"  # Example match time
-# heuristic = "Heuristic 1"  # Example heuristic
-# final_board = [[1, 0, 2, 0, 0, 0],
-#                [2, 1, 1, 0, 0, 0],
-#                [1, 2, 2, 0, 0, 0],
-#                [2, 1, 2, 0, 0, 0],
-#                [1, 2, 1, 0, 0, 0],
-#                [2, 1, 1, 0, 0, 0]]  # Example final board state
-
-# record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic, final_board)
