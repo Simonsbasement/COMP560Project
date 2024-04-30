@@ -16,7 +16,7 @@ import agents
 import helper
 import heuristics
 
-# Game host main loop
+# Game host
 def main():
     # define size of board; column by row
     c = 7; r = 6
@@ -86,16 +86,18 @@ def main():
             print(f'Agent 2 is now using {heuristics_names[i]}')
             their_heuristics.append(i)
             break
+    # Initialize board
     board = np.zeros([c, r], dtype=int)
     helper.print_board(board)
-    #Start Game timer 
+    #Start Game timer
     start_time = time.time()
-
     # which agent is playing
     # mismatch the index in players[next-1] 
     next = 1
+    # Game loop
     while (True):
-        move = agent_funcs[players[next-1]](board, next, w, heuristics_funcs[their_heuristics[next-1]], max_depth)  ###PLAY HERE
+        # Call an agent and get their move
+        move = agent_funcs[players[next-1]](board, next, w, heuristics_funcs[their_heuristics[next-1]], max_depth)
         
         # Backtrack from user
         # syntex: b j k
@@ -106,14 +108,17 @@ def main():
             print(f'Performed backtracking on column {np.int32(move[2])} and {np.int32(move[4])}. ')
             helper.print_board(board)
             continue
-
+        
+        # Print the move
         board = helper.make_move(board, next, move)
         print(f'Agent {next}: {agent_names[players[next-1]]} plays: {move}')
         helper.print_board(board)
 
+        # Eval for winner
         winner = helper.get_winner(board, w)
         if winner != 0:
             if (winner !=3):
+                # there is a winner!
                 print(f'Winner is agent {winner}: {agent_names[players[winner-1]]}')
             else:
                 # this game is a draw
@@ -129,22 +134,16 @@ def main():
             if not forever:
                 break
             else:
-                wins[winner-1] = wins[winner-1] + 1
+                if (winner != 3):
+                    wins[winner-1] = wins[winner-1] + 1
                 print(f'Current wins: {wins[0]} to {wins[1]}')
                 # Initiate a new game when one ends. 
                 board = np.zeros([c, r], dtype=int)
                 helper.print_board(board)
                 next = 1
                 continue
-
-           
-        
         # Flip between agent 1 and 2
         next = int(next == 1) + 1
-
-    
-
     return
-
 
 main()
