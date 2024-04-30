@@ -75,7 +75,9 @@ def backtrack(b, j, k):
 # if there are more than 1 winner on board(idk how), return the 1st discovered winner
 # Input: int[][] b = borad
 #        int w = connect #
-# Return: int winner = 1 or 2 if that player is winning, or 0 if noone is winning
+# Return: int winner = 1 or 2 if that player is winning
+#                      0 if noone is currently winning
+#                      3 if the board is full AND noone is winning -> a draw
 def get_winner(b, w):
     [n, m] = np.shape(np.array(b))
     for c in range(0, n):
@@ -112,8 +114,15 @@ def get_winner(b, w):
             for k in conn:
                 if k == w:
                     return b[c][r]
-    # if no winner, return 0
-    return 0
+                
+    # potential draw -> check if full board
+    l, t = get_avalible_column(b)
+    if (np.any(l)):
+        # no winner, not full board, return 0
+        return 0
+    else:
+        # full board, no winner, draw -> return 3
+        return 3
 
 # Output the result of a game to an excel file. 
 # Example output:
