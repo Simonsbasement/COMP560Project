@@ -120,7 +120,8 @@ def agent_minimax(b, n, w, h, d, final=True, minimizing = False, alpha = -999999
             if alpha >= beta:
                 break
         if final:
-            print(f'With score: {h(helper.make_move(b, n, column), n, w)}')
+            # Print the eval score (or not)
+            # print(f'With score: {h(helper.make_move(b, n, column), n, w)}')
             return int(column)
         else:
             return column, value

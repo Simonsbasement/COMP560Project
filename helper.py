@@ -2,7 +2,6 @@
 
 import os
 import numpy as np
-import colorama
 from colorama import Fore, Style
 from openpyxl import Workbook, load_workbook
 
@@ -129,7 +128,6 @@ def get_winner(b, w):
 # agent1 = "Agent 1"
 # agent2 = "Agent 2"
 # winner = "Agent 1"
-# first_player = "Agent 1"
 # match_time = "00:05:23"  # Example match time
 # heuristic = "Heuristic 1"  # Example heuristic
 # final_board = [[1, 0, 2, 0, 0, 0],
@@ -138,31 +136,38 @@ def get_winner(b, w):
 #                [2, 1, 2, 0, 0, 0],
 #                [1, 2, 1, 0, 0, 0],
 #                [2, 1, 1, 0, 0, 0]]  # Example final board state
-def record_to_excel(agent1, agent2, winner, first_player, match_time, heuristic, final_board, depth):
-    file_name = "game_data.xlsx"
-
-    # Convert final_board to a string
-    final_board_str = '\n'.join([' '.join(map(str, row)) for row in final_board])
-    
+def record_to_excel(agent1, agent2, winner, match_time, heuristic_1, heuristic_2, final_board, depth, tournament=False):
+    if not tournament:
+        file_name = "game_data.xlsx"
+        headers = ["Agent 1", "Agent 2", "Winner", "Match Time", "Heuristic 1", "Heuristic 2", "Final Board", "Depth"]
+    else:
+        file_name = "game_data_tournament.xlsx"
+        headers = ["Agent 1", "Agent 2", "Winrate", "Average Match Time", "Heuristic 1", "Heuristic 2", "Depth"]
+        
     # Check if the file exists
     if os.path.exists(file_name):
         wb = load_workbook(file_name)
         ws = wb.active
     else:
-        # Create a new workbook if the file doesn't exist
+        # If not, create a new workbook if the file doesn't exist
         wb = Workbook()
         ws = wb.active
-        
         # Define column headers for the new file
-        headers = ["Agent 1", "Agent 2", "Winner", "First Player", "Match Time", "Heuristic", "Final Board", "Depth"]
         for col, header in enumerate(headers, start=1):
             ws.cell(row=1, column=col, value=header)
 
-    # Append data to the next row
-    row_data = [agent1, agent2, winner, first_player, match_time, heuristic, final_board_str, depth]
-    ws.append(row_data)
+    if not tournament:
+        # Convert final_board to a string
+        final_board_str = '\n'.join([' '.join(map(str, row)) for row in final_board])
+        # Append data to the next row
+        row_data = [agent1, agent2, winner, match_time, heuristic_1, heuristic_2, final_board_str, depth]
+        ws.append(row_data)
+    else:
+        # Append data to the next row
+        row_data = [agent1, agent2, winner, match_time, heuristic_1, heuristic_2, depth]
+        ws.append(row_data)
     
     # Save the workbook
     wb.save(file_name)
-    
-    print(f"Data appended to {file_name}")
+    if not tournament:
+        print(f"Data appended to {file_name}")
