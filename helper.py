@@ -173,7 +173,7 @@ def record_to_excel(agent1, agent2, winner, match_time, heuristic_1, heuristic_2
     if not tournament:
         print(f"Data appended to {file_name}")
 
-
+# Helper for mcts: simulate a random game based on given board
 def simulate_random_playout(b, n, w):
     current_player = n
     while True:
