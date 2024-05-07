@@ -30,7 +30,7 @@ def main():
     wins = [0, 0]
     # Enumerate through all combanitions of agents and heuristics
     # How many games to play per pair of agent-heuristic
-    tournament = True; games_per_pair = 100
+    tournament = False; games_per_pair = 100
     if tournament:
         forever = True
         # Helper for recording the current index of the agent/heuristic
