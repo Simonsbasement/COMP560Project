@@ -140,7 +140,7 @@ def agent_mcts(b, n, w, h, d=5000):
     for move in legal_moves:
         simulations[move] = {'wins': 0, 'plays': 0}
 
-    while time.time() - start_time < d:  # Assuming 'd' is time in seconds
+    while time.time() - start_time < d:  # d is time in seconds which I made it to take 5 seconds to simulate all possible outcome
         for move in legal_moves:
             b_copy = b.copy()
             b_copy = helper.make_move(b_copy, n, move)
