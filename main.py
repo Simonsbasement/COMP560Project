@@ -180,6 +180,8 @@ def main():
                     print(f'Current wins: {wins[0]} to {wins[1]}')
                 else:
                     current_pair_game_count = current_pair_game_count + 1
+                    if (current_pair_game_count % int(games_per_pair/10) == 0):
+                        print(f'{(100*current_pair_game_count) / games_per_pair}% ', end='')
                     # If this pair is done -> next pair:
                     if current_pair_game_count == games_per_pair:
                         # Grab game time
