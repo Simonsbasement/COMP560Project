@@ -126,3 +126,21 @@ def agent_minimax(b, n, w, h, d, final=True, minimizing = False, alpha = -999999
             return column, value
     # Should never teach this
     return None
+
+
+def agent_mcts(board, player, n, w, h, max_depth):
+    """
+    Function representing the move made by the MCTS agent.
+
+    Args:
+    - board: The current state of the game board.
+    - player: The player ID of the MCTS agent.
+    - n: Number of simulations.
+    - w: Number of connected pieces required to win.
+    - h: Height of the game board.
+    - max_depth: Maximum depth to search.
+
+    Returns:
+    The column where the MCTS agent makes its move.
+    """
+    return mcts(board, n, w, h, max_depth)

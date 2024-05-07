@@ -1,125 +1,156 @@
-import random
-import time
-import math
-from copy import deepcopy
+import numpy as np
+import helper
 
 
-class Game:
-    PLAYERS = {'none': 0, 'one': 1, 'two': 2}
-    OUTCOMES = {'none': 0, 'one': 1, 'two': 2, 'draw': 3}
-    INF = float('inf')
-    ROWS = 6
-    COLS = 7
+"""
+Initialize a Node object.
 
+Args:
+- state: The state of the game board.
+- parent: The parent node of the current node.
+"""
 class Node:
-    def __init__(self, move, parent):
-        self.move = move
+    def __init__(self, state, parent=None):
+        self.state = state
         self.parent = parent
-        self.N = 0
-        self.Q = 0
-        self.children = {}
-        self.outcome = Game.PLAYERS['none']
+        self.children = []
+        self.visits = 0
+        self.value = 0
 
-    def add_children(self, children: dict) -> None:
-        for child in children:
-            self.children[child.move] = child
-    
-    def value(self, explore: float = math.sqrt(2)):
-        if self.N == 0:
-            return 0 if explore == 0 else Game.INF
+"""
+Monte Carlo Tree Search algorithm.
+
+Args:
+- b: The current state of the game board.
+- n: Number of simulations.
+- w: Number of connected pieces required to win.
+- h: Height of the game board.
+- max_depth: Maximum depth to search.
+
+Returns:
+The next state of the game board after applying MCTS.
+"""
+def mcts(b, n, w, h, max_depth):
+    root = Node(state=b)
+    for _ in range(max_depth):
+        selected_node = tree_policy(root, w)
+        reward = default_policy(selected_node.state, n, w)
+        backup(selected_node, reward)
+    return best_child(root).state
+
+"""
+Select a child node according to the tree policy.
+
+Args:
+- node: The current node in the tree.
+- w: Number of connected pieces required to win.
+
+Returns:
+The selected child node.
+"""
+def tree_policy(node, w):
+    while not helper.get_winner(node.state, w):
+        if len(node.children) < len(helper.get_avalible_column(node.state)[0]):
+            return expand(node)
         else:
-            return self.Q / self.N + explore * math.sqrt(math.log(self.parent.N) / self.N)
-        
-class MCTS:
-    def __init__(self, state: State):
-        self.root_state = deepcopy(state)
-        self.root = Node(None, None)
-        self.run_time = 0
-        self.node_count = 0
-        self.num_rollouts = 0
+            node = best_uct(node)
+    return node
 
-    def select_node(self) -> tuple:
-        node = self.root
-        state = deepcopy(self.root_state)
+"""
+Expand the tree by adding a new child node.
 
-        while len(node.children) != 0:
-            children = node.children.values()
-            max_value = max(children, key=lambda n: n.value()).value()
-            max_nodes = [n for n in children if n.values() == max_value]
+Args:
+- node: The node to expand.
 
-            node = random.choice(max_nodes)
-            state.move(node.move)
+Returns:
+The newly added child node.
+"""
 
-            if node.N == 0:
-                return node, state
-            
-        if self.expand(node, state):
-            node = random.choice(list(node.children.values()))
-            state.move(node.move)
+def expand(node):
+    l, _ = helper.get_avalible_column(node.state)
+    for c in range(len(l)):
+        if l[c]:
+            new_state = helper.make_move(np.copy(node.state), 1 if node.state.count(1) <= node.state.count(2) else 2, c)
+            new_node = Node(state=new_state, parent=node)
+            node.children.append(new_node)
+            return new_node
 
-        return node, state
-    
-    def expand(self, parent: Node, state: State) -> bool:
-        if state.game_over():
-            return False
-        
-        children = [Node(move, parent) for move in state.get_legal_moves()]
-        parent.add_children(children)
+"""
+Select the child node with the best UCT value.
 
-        return True
-    
-    def roll_out(self, state: states) -> int:
-        while not state.game_over():
-            state.move(random.choice(state.get_legal_moves()))
+Args:
+- node: The current node in the tree.
 
-        return state.get_outcome()
-    
-    def back_propagate(self, node: Node, turn: int, outcome: int) -> None:
+Returns:
+The selected child node.
+"""
 
-        # Current player
-        reward = 0 if outcome == turn else 1
+def best_uct(node):
+    max_uct = float('-inf')
+    selected_node = None
+    for child in node.children:
+        uct = (child.value / child.visits) + np.sqrt(2 * np.log(node.visits) / child.visits)
+        if uct > max_uct:
+            max_uct = uct
+            selected_node = child
+    return selected_node
 
-        while node is not None:
-            node.N += 1
-            node.Q += reward
-            node = node.parent
-            if outcome == Game.OUTCOMES['draw']:
-                reward = 0
-            else:
-                reward = 1 - reward
+"""
+Default policy to simulate a game from a given state.
 
-    def search(self, time_limit: int):
-        start_time = time.process_time()
+Args:
+- state: The current state of the game board.
+- player: The current player.
+- w: Number of connected pieces required to win.
 
-        num_rollouts = 0
-        while time.process_time() - start_time < time_limit:
-            node, state = self.select_node()
-            outcome = self.roll_out(state)
-            self.back_propagate(node, state.to_play, outcome)
-            num_rollouts += 1
+Returns:
+The reward obtained after simulating the game.
+"""
 
-        run_time = time.process_time() - start_time
-        self.run_time = run_time
-        self.num_rollouts = num_rollouts
+def default_policy(state, player, w):
+    while not helper.get_winner(state, w):
+        l, _ = helper.get_avalible_column(state)
+        available_columns = np.arange(len(l))[l]
+        move = np.random.choice(available_columns)
+        state = helper.make_move(np.copy(state), player, move)
+        player = 1 if player == 2 else 2
+    winner = helper.get_winner(state, w)
+    if winner == player:
+        return 1
+    elif winner == 0:
+        return 0.5
+    else:
+        return 0
 
-    def best_move(self):
-        if self.root_state.game_over():
-            return - 1
+"""
+Backup the reward value through the tree.
 
-        max_value = max(self.root.children.values(), key=lambda n: n.N).N
-        max_nodes = [n for n in self.root.children.values() if n.N == max_value]
-        best_child = random.choice(max_nodes)
+Args:
+- node: The current node in the tree.
+- reward: The reward to propagate through the tree.
+"""
 
-        return best_child.move
+def backup(node, reward):
+    while node:
+        node.visits += 1
+        node.value += reward
+        node = node.parent
 
-    def move(self, move):
-        if move in self.root.children:
-            self.root_state.move(move)
-            self.root = self.root.children[move]
-            return
+"""
+Select the best child node based on the number of visits.
 
-        self.root_state.move(move)
-        self.root = Node(None, None)
+Args:
+- node: The current node in the tree.
 
-    def statistics(self) -> tuple:
-        return self.num_rollouts, self.run_time
+Returns:
+The state of the best child node.
+"""
+
+def best_child(node):
+    best_visits = float('-inf')
+    best_node = None
+    for child in node.children:
+        if child.visits > best_visits:
+            best_visits = child.visits
+            best_node = child
+    return best_node.state
