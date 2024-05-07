@@ -5,6 +5,8 @@
 import numpy as np
 
 import helper
+import time
+
 
 # an example agent who moves randomly
 def agent_random(b, n, w, h, d):
@@ -128,192 +130,28 @@ def agent_minimax(b, n, w, h, d, final=True, minimizing = False, alpha = -999999
     # Should never teach this
     return None
 
-"""
-    Function representing the move made by the MCTS agent.
+def agent_mcts(b, n, w, h, d):
+    # Notice here that d is used instead like a timer (in seconds)
+    start_time = time.time()
+    legal_moves = [col for col, is_legal in enumerate(helper.get_avalible_column(b)[0]) if is_legal]
+    if not legal_moves:
+        return -1  # No legal moves
 
-    Args:
-    - board: The current state of the game board.
-    - n: Number of simulations.
-    - w: Number of connected pieces required to win.
-    - h: [current implementation does not care about any heuristics
-          all games simulated are random games]
-    - max_depth: Maximum depth to search.
+    simulations = {}
+    for move in legal_moves:
+        simulations[move] = {'wins': 0, 'plays': 0}
 
-    Returns:
-    The column where the MCTS agent makes its move.
-"""
-def agent_mcts(b, n, w, h, max_depth):
-    # Local helpers for mcts
-    """
-    Initialize a Node object.
+    while time.time() - start_time < d:  # d is time in seconds which I made it to take 5 seconds to simulate all possible outcome
+        for move in legal_moves:
+            b_copy = b.copy()
+            b_copy = helper.make_move(b_copy, n, move)
+            outcome = helper.simulate_random_playout(b_copy, n, w)
+            if outcome == n:
+                simulations[move]['wins'] += 1
+            simulations[move]['plays'] += 1
 
-    Args:
-    - state: The state of the game board.
-    - parent: The parent node of the current node.
-    """
-    class Node:
-        def __init__(self, state, parent=None):
-            self.state = state
-            self.parent = parent
-            self.children = []
-            self.visits = 0
-            self.value = 0
-    
-    """
-    Select a child node according to the tree policy.
-
-    Args:
-    - node: The current node in the tree.
-    - w: Number of connected pieces required to win.
-
-    Returns:
-    The selected child node.
-    """
-    def tree_policy(node, w):
-        # while there is no winner in node.state
-        while not helper.get_winner(node.state, w):
-            # if there are any next moves not investigated:
-            if len(node.children) < len(helper.get_avalible_column(node.state)[0]):
-                # generate, associate, and return a (next) child of the node
-                return expand(node)
-            else:
-                # else select and return the best child of the current node
-                # -> depth +1
-                node = best_uct(node)
-        return node
-
-    """
-    Expand the tree by adding a new child node.
-
-    Args:
-    - node: The node to expand.
-
-    Returns:
-    The newly added child node.
-    """
-    def expand(node):
-        # get which columns are legal next moves
-        l, _ = helper.get_avalible_column(node.state)
-        # for the left-most legal next move:
-        for c in range(len(l)):
-            if l[c]:
-                # make a child based on that move, associate child to parent, return the child
-                new_state = helper.make_move(np.copy(node.state), 1 if node.state.tolist().count(1.0) <= node.state.tolist().count(2.0) else 2, c)
-                new_node = Node(state=new_state, parent=node)
-                node.children.append(new_node)
-                return new_node
-
-    """
-    Select the child node with the best UCT value.
-
-    Args:
-    - node: The current node in the tree.
-
-    Returns:
-    The selected child node.
-    """
-    def best_uct(node):
-        max_uct = float('-inf')
-        selected_node = None
-        for child in node.children:
-            uct = (child.value / child.visits) + np.sqrt(2 * np.log(node.visits) / child.visits)
-            if uct > max_uct:
-                max_uct = uct
-                selected_node = child
-        return selected_node
-
-    """
-    Default policy to simulate a game from a given state.
-
-    Args:
-    - state: The current state of the game board.
-    - player: The current player.
-    - w: Number of connected pieces required to win.
-
-    Returns:
-    The reward obtained after simulating the game.
-    """
-    def default_policy(state, player, w):
-        # simulate (1) random game based on state
-        while not helper.get_winner(state, w):
-            l, _ = helper.get_avalible_column(state)
-            available_columns = np.arange(len(l))[l]
-            move = np.random.choice(available_columns)
-            state = helper.make_move(np.copy(state), player, move)
-            player = 1 if player == 2 else 2
-        winner = helper.get_winner(state, w)
-        # score and return the result of the random game
-        if winner == player:
-            return 1
-        elif winner == 3: # draw is 3
-            return 0.5
-        else:
-            return 0
-
-    """
-    Backup the reward value through the tree.
-
-    Args:
-    - node: The current node in the tree.
-    - reward: The reward to propagate through the tree.
-    """
-    def backup(node, reward):
-        # for node and all its parents:
-        while node:
-            node.visits += 1
-            # accumulate the value of all its childs
-            node.value += reward
-            node = node.parent
-
-    """
-    Select the best child node based on the number of visits.
-
-    Args:
-    - node: The current node in the tree.
-
-    Returns:
-    The best child node of node.
-    """
-    def best_child(node):
-        best_visits = float('-inf')
-        best_node = None
-        for child in node.children:
-            if child.visits > best_visits:
-                best_visits = child.visits
-                best_node = child
-        return best_node
-    
-    """
-    Monte Carlo Tree Search algorithm core.
-
-    Args:
-    - b: The current state of the game board.
-    - n: Number of simulations.
-    - w: Number of connected pieces required to win.
-    - h: Height of the game board.
-    - max_depth: Maximum depth to search.
-
-    Returns:
-    The next state of the game board after applying MCTS.
-    """
-    # Create a root node with the given board
-    root = Node(state=b)
-    # for each allowed depth:
-    # ->This implementation uses max_depth as "max count of games simulated"
-    # the extras are for guaranteeing at least a full set of 1-depth childs
-    for _ in range(max_depth+b.shape[0]):
-        # generate a child for root
-        # or, if 1-depth child is full, get the current best child through best_uct(node)
-        selected_node = tree_policy(root, w)
-        # simulate (1) random game based on this child, score the result
-        reward = default_policy(selected_node.state, n, w)
-        # propagate and accumulate the 1) visit count and 2) value of the child up the tree
-        backup(selected_node, reward)
-    # get the difference between root's board and its best child's
-    state_diff = abs(best_child(root).state - root.state)
-    # parse this difference to move, and return
-    return int((np.add.reduce(state_diff.reshape((1,-1))).tolist().index(1.0))/6)
-
-    
+    # Select the move with the highest win ratio
+    best_move = max(simulations, key=lambda x: simulations[x]['wins'] / simulations[x]['plays'])
+    return best_move
 
 

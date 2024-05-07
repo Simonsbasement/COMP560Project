@@ -2,6 +2,7 @@
 
 import os
 import numpy as np
+import random
 from colorama import Fore, Style
 from openpyxl import Workbook, load_workbook
 
@@ -171,3 +172,17 @@ def record_to_excel(agent1, agent2, winner, match_time, heuristic_1, heuristic_2
     wb.save(file_name)
     if not tournament:
         print(f"Data appended to {file_name}")
+
+
+def simulate_random_playout(b, n, w):
+    current_player = n
+    while True:
+        result = get_winner(b, w)
+        if result != 0:  # If game is over
+            return result
+        legal_moves = [col for col, is_legal in enumerate(get_avalible_column(b)[0]) if is_legal]
+        if not legal_moves:  # No legal moves means a draw
+            return 0
+        move = random.choice(legal_moves)
+        b = make_move(b, current_player, move)
+        current_player = 3 - current_player  # Switch player
