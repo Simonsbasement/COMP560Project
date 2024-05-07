@@ -312,7 +312,7 @@ def agent_mcts(b, n, w, h, max_depth):
     # get the difference between root's board and its best child's
     state_diff = abs(best_child(root).state - root.state)
     # parse this difference to move, and return
-    return int((np.add.reduce(state_diff.reshape((1,-1))).tolist().index(1.0)+0.5)/7)
+    return int((np.add.reduce(state_diff.reshape((1,-1))).tolist().index(1.0))/6)
 
     
 
