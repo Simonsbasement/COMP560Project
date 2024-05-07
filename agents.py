@@ -2,6 +2,7 @@
 # Every agent must be warped into a def function
 # The signiture must be algo(int[][] board, int who_goes_next, int winning_count, func heuristic, int max_depth) -> int column_to_go_next
 
+from mcts import mcts
 import numpy as np
 
 import helper
