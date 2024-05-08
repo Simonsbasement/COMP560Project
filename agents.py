@@ -129,9 +129,16 @@ def agent_minimax(b, n, w, h, d, final=True, minimizing = False, alpha = -999999
             return column, value
     # Should never teach this
     return None
-
+    
+# Monte Carlo algorithm 
+# Input: int[][] b = board
+#        int     n = agent ID (as shown on board) playing FOR
+#        int     w = winning by connect w
+#        func    h = the heuristic function to evaluate a board
+#        int     d = time 
+# Retrun:
+#        best move = which is the move with a higher chance of winning
 def agent_mcts(b, n, w, h, d):
-    # Notice here that d is used instead like a timer (in seconds)
     start_time = time.time()
     legal_moves = [col for col, is_legal in enumerate(helper.get_avalible_column(b)[0]) if is_legal]
     if not legal_moves:
