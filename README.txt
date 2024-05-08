@@ -9,4 +9,5 @@ helper.py are all the helper functions, like get_avalible_column, print_board, m
 heuristics.py are all the heuristics. 
 
 End result:
-https://docs.google.com/document/d/18I2OSfql88RU0_1-Fn886qhU7ywH9IV_WZDUUbEwANA
+Report: https://docs.google.com/document/d/18I2OSfql88RU0_1-Fn886qhU7ywH9IV_WZDUUbEwANA
+Tournament result: https://docs.google.com/spreadsheets/d/13Y44y96OY_8dGsKgQ7uS9uv47LIOGHoH
